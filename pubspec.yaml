@@ -1,0 +1,14 @@
+name: dart_cfd_score
+description: Dart port of igc-xc-score — CFD/XC paragliding flight scoring (free distance, flat triangle, FAI triangle) for the FFVL CFD and other rule sets.
+version: 0.0.1
+repository: https://github.com/sebmoreau/dart_cfd_score
+
+environment:
+  sdk: ^3.2.0
+
+dependencies:
+  collection: ^1.18.0
+
+dev_dependencies:
+  lints: ^3.0.0
+  test: ^1.24.0
