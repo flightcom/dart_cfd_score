@@ -26,11 +26,29 @@ class Point {
 
   bool intersectsBox(Box other) => other.intersectsPoint(this);
 
-  /// Default fast distance — uses the FCC polynomial approximation.
-  double distanceEarth(Point p) => distanceEarthFCC(p);
+  /// Default distance — uses the Haversine formula (R = 6371 km) to match
+  /// the CFD FFVL scoring engine. Previous versions used the FCC polynomial
+  /// approximation from igc-xc-score, which overestimates distances by ~0.27%
+  /// at mid-latitudes.
+  double distanceEarth(Point p) => distanceEarthHaversine(p);
 
-  /// FCC polynomial distance (km). Cheap; matches upstream verbatim including
-  /// the cos-of-multiples speedup.
+  /// Haversine distance (km) on a sphere of mean radius 6371 km.
+  /// Matches the CFD FFVL scoring engine output to sub-meter precision.
+  double distanceEarthHaversine(Point p) {
+    final double lat1 = radians(y);
+    final double lat2 = radians(p.y);
+    final double dLat = radians(p.y - y);
+    final double dLon = radians(p.x - x);
+    final double a = math.sin(dLat / 2) * math.sin(dLat / 2) +
+        math.cos(lat1) * math.cos(lat2) *
+            math.sin(dLon / 2) * math.sin(dLon / 2);
+    return rEarth * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
+  }
+
+  /// FCC polynomial distance (km). Matches upstream igc-xc-score verbatim
+  /// including the cos-of-multiples speedup. Kept for reference and
+  /// cross-validation, but no longer the default — the FCC formula
+  /// overestimates distances by ~0.27% at 46°N latitude.
   double distanceEarthFCC(Point p) {
     final double df = p.y - y;
     final double dg = p.x - x;

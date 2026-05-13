@@ -17,15 +17,18 @@ void main() {
       <double>[6.150, 45.910], // closing point (near launch)
     ];
 
-    // Build a dense polyline along the triangle edges.
+    // Build a dense polyline along the triangle edges. Timestamps must be
+    // strictly monotonic — `flightStateFromFixes` deduplicates consecutive
+    // identical timestamps (matches igc-xc-score `flight.filtered`).
+    int t = 0;
     List<FlightFix> traceLeg(List<double> a, List<double> b, int steps) {
       final List<FlightFix> out = <FlightFix>[];
       for (int i = 0; i < steps; i++) {
-        final double t = i / steps;
+        final double f = i / steps;
         out.add(FlightFix(
-          longitude: a[0] + (b[0] - a[0]) * t,
-          latitude: a[1] + (b[1] - a[1]) * t,
-          timestampMs: 0,
+          longitude: a[0] + (b[0] - a[0]) * f,
+          latitude: a[1] + (b[1] - a[1]) * f,
+          timestampMs: t++,
         ));
       }
       return out;
@@ -38,7 +41,7 @@ void main() {
       FlightFix(
           longitude: corners[3][0],
           latitude: corners[3][1],
-          timestampMs: 0),
+          timestampMs: t),
     ];
 
     test('solver returns a positive score and an optimal solution', () {

@@ -2,7 +2,7 @@ import 'package:dart_cfd_score/dart_cfd_score.dart';
 import 'package:dart_cfd_score/src/geometry.dart';
 import 'package:test/test.dart';
 
-// Reference values from igc-xc-score (geom.js) on identical inputs.
+// Reference values computed with Haversine R=6371 km on identical inputs.
 
 double _perim3(Point a, Point b, Point c) =>
     a.distanceEarth(b) + b.distanceEarth(c) + c.distanceEarth(a);
@@ -17,12 +17,12 @@ void main() {
   group('maxDistance3Rectangles', () {
     test('disjoint boxes', () {
       expect(maxDistance3Rectangles(<Box>[b1, b2, b3], _perim3),
-          closeTo(793.16738940, 1e-6));
+          closeTo(792.32593153, 1e-6));
     });
 
     test('intersecting pair widens candidate set', () {
       expect(maxDistance3Rectangles(<Box>[b1, b4, b2], _perim3),
-          closeTo(554.28500659, 1e-6));
+          closeTo(553.87111984, 1e-6));
     });
 
     test('rejects non-3 input', () {
@@ -34,31 +34,31 @@ void main() {
   group('minDistance3Rectangles', () {
     test('disjoint boxes', () {
       expect(minDistance3Rectangles(<Box>[b1, b2, b3], _perim3),
-          closeTo(481.80413015, 1e-6));
+          closeTo(481.24533630, 1e-6));
     });
   });
 
   group('maxDistance2Rectangles / minDistance2Rectangles', () {
     test('max', () {
       expect(maxDistance2Rectangles(<Box>[b1, b2]),
-          closeTo(270.96417599, 1e-6));
+          closeTo(270.76074331, 1e-6));
     });
     test('min', () {
       expect(minDistance2Rectangles(<Box>[b1, b2]),
-          closeTo(135.48208799, 1e-6));
+          closeTo(135.38831697, 1e-6));
     });
   });
 
   group('maxDistanceNRectangles', () {
     test('4 boxes path', () {
       expect(maxDistanceNRectangles(<Object>[b1, b2, b3, b1]),
-          closeTo(805.77967664, 1e-6));
+          closeTo(804.85678511, 1e-6));
     });
 
     test('mixed Box + Point', () {
       expect(
           maxDistanceNRectangles(<Object>[b1, Point(7.0, 46.0), b2]),
-          closeTo(270.96324145, 1e-6));
+          closeTo(270.77570544, 1e-6));
     });
 
     test('rejects unknown element type', () {
@@ -80,7 +80,7 @@ void main() {
     });
 
     test('two layers picks the longest pair', () {
-      // Distances are FCC; just check monotonicity / pick.
+      // Distances are Haversine; just check monotonicity / pick.
       final double d = maxDistancePath(
         null,
         <List<Point>>[

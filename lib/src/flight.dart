@@ -29,9 +29,17 @@ class FlightFix {
 }
 
 /// Build a [FlightState] from a list of local-format fixes.
+///
+/// Deduplicates consecutive fixes that share the same timestamp (mirrors
+/// `igc-xc-score/src/flight.js::analyze` — `flight.filtered`). Required so
+/// our solver indices line up with the JS reference's `filtered` array.
 FlightState flightStateFromFixes(List<FlightFix> fixes) {
-  final List<Point> pts = <Point>[
-    for (final FlightFix f in fixes) Point(f.longitude, f.latitude),
-  ];
+  final List<Point> pts = <Point>[];
+  int? prevTs;
+  for (final FlightFix f in fixes) {
+    if (prevTs == f.timestampMs) continue;
+    pts.add(Point(f.longitude, f.latitude));
+    prevTs = f.timestampMs;
+  }
   return FlightState(pts);
 }
